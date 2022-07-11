@@ -1,13 +1,22 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+### Shiny application for world top 100 buildings
+# Luke Day
+#################################################
+# Aim is to visualise where these buildings are with relevant filters
+# Also visualise country information - it is of interest how other country level indicators relate to the number of tallest buildings
+# e.g., are there more tall buildings in countries with a larger GDP?
+#################################################
 
+# Load packages
 library(shiny)
+library(shinyWidgets)
+library(tidyverse)
+library(plotly)
+library(shinythemes)
+library(maps)
+
+# Access token for mapbox in plotly - set in global environment
+Sys.setenv(MAPBOX_TOKEN = readLines('Mapbox_Token')) 
+
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(

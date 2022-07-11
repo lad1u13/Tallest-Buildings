@@ -74,3 +74,4 @@ full_data <- full_data %>%
   )
 
 # dim(full_data) # Check there are still 100 rows
+

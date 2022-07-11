@@ -4,7 +4,8 @@
 *.csv
 
 .DS_Store
+.Rhistory
 
 # Ignore access token
-building/Mapbox_Token
+buildings/Mapbox_Token
 
