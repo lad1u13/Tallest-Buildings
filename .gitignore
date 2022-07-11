@@ -1,0 +1,10 @@
+# Git ignore files
+
+# Ignore all csv files
+*.csv
+
+.DS_Store
+
+# Ignore access token
+building/Mapbox_Token
+
