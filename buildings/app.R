@@ -22,40 +22,60 @@ source('read_and_prepare_data.R')
 
 # Define UI for application
 ui <- fluidPage(
-                sidebarLayout(
-                  sidebarPanel(
-                  titlePanel("Top 100 Tallest Buildings"), # Add title
+        navbarPage(title = "Worlds Tallest Buildings",
+                   tabPanel("Tallest Buildings", icon = icon("globe-americas"), 
+                    sidebarLayout(
+                      sidebarPanel(
+                      titlePanel("Top 100 Tallest Buildings"), # Add title
+                    
+                      # Add material filter as a drop down box with an option for all
+                      pickerInput('material',
+                                  label = 'Material',
+                                  choices = unique(full_data$Material),
+                                  options = list(`actions-box` = TRUE),
+                                  multiple = TRUE,
+                                  selected = unique(full_data$Material)),
+                      
+                      # Add function filter with drop down box (with option for all)  
+                      pickerInput('func',
+                                  label = 'Function',
+                                  choices = unique(full_data$Function),
+                                  options = list(`actions-box` = TRUE),
+                                  multiple = TRUE,
+                                  selected = unique(full_data$Function)),
+                      
+                      # Add completion year filter as a slider
+                      sliderInput('year',
+                                  label = 'Completion year',
+                                  min = min(full_data$Completion),
+                                  max = max(full_data$Completion),
+                                  value = c(min(full_data$Completion), max(full_data$Completion)), sep = "")
+                      ),
+                      mainPanel(
+                        # Use two separate tabs in first page to display the map and distribution of heights separately
+                        plotlyOutput('map', width = "1000px", height = "600px")
+                      )
+                )
+                        ),
+                # Second tab in application
+                tabPanel("Country Information", icon = icon('bar-chart-o'),
+                         sidebarLayout(
+                           sidebarPanel(
+                             titlePanel("Countries with the top 100 tallest buildings"), # Second tab title
+                             pickerInput('variable', # Filter option for country level variable (without option for all)
+                                         label = 'Variable',
+                                         choices = c('Number of top 100 tallest buildings', names(countries)[!names(countries) %in% c('Country', 'Region')]),
+                                         options = list(`actions-box` = TRUE),
+                                         multiple = FALSE,
+                                         selected = 'Number of top 100 tallest buildings')
+                           )
+                           ,
+                           mainPanel(plotlyOutput("map2", width = "1000px", height = "700px")) # Include main visualisation for second tab
+                         )
+                )
                 
-                  # Add material filter as a drop down box with an option for all
-                  pickerInput('material',
-                              label = 'Material',
-                              choices = unique(full_data$Material),
-                              options = list(`actions-box` = TRUE),
-                              multiple = TRUE,
-                              selected = unique(full_data$Material)),
-                  
-                  # Add function filter with drop down box (with option for all)  
-                  pickerInput('func',
-                              label = 'Function',
-                              choices = unique(full_data$Function),
-                              options = list(`actions-box` = TRUE),
-                              multiple = TRUE,
-                              selected = unique(full_data$Function)),
-                  
-                  # Add completion year filter as a slider
-                  sliderInput('year',
-                              label = 'Completion year',
-                              min = min(full_data$Completion),
-                              max = max(full_data$Completion),
-                              value = c(min(full_data$Completion), max(full_data$Completion)), sep = "")
-                  ),
-                  mainPanel(
-                    # Use two separate tabs in first page to display the map and distribution of heights separately
-                    plotlyOutput('map', width = "1000px", height = "600px")
-                  )
-            )
-                      )                                  
-
+)
+)
            
 # Define server logic for application
 server <- function(input, output, session){
@@ -91,7 +111,25 @@ server <- function(input, output, session){
                             lat = ~ median(lat),
                             lon = ~ median(long))))
   })
+ 
+ # Output for visualisation in second tab (another plotly map but this time at the country level)
+ output$map2 <- renderPlotly({
+   full_data %>%
+     plot_ly() %>%
+     add_trace(type = 'choropleth',
+               locations = ~CODE, # Code is taken from ISO3166 to locate regions on map based on country
+               z = full_data[, input$variable], # Heatmap density is a function of selected input variable
+               colorscale = "Viridis",
+               text = ~paste('Country:', Country, # Tooltip information
+                             '\n', paste(input$variable, ':', sep = ''), full_data[, input$variable],
+                             '\nNumber of top 100 tallest buildings:', full_data[, 'Number of top 100 tallest buildings']) # Inlude metric aggregated at the country level (count of tallest buildings)
+     ) %>%
+     layout(mapbox = list(style = 'carto-positron'))
+ })
+ 
 } 
+
+
 
 # Run the application 
 shinyApp(ui = ui, server = server)
