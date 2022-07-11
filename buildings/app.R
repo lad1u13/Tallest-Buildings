@@ -21,7 +21,8 @@ Sys.setenv(MAPBOX_TOKEN = readLines('Mapbox_Token'))
 source('read_and_prepare_data.R')
 
 # Define UI for application
-ui <- fluidPage(
+ui <- fluidPage(title = "Worlds Tallest Buildings",
+                theme = shinytheme('slate'),
         navbarPage(title = "Worlds Tallest Buildings",
                    tabPanel("Tallest Buildings", icon = icon("globe-americas"), 
                     sidebarLayout(
@@ -74,7 +75,7 @@ ui <- fluidPage(
                          )
                 )
                 
-)
+  )
 )
            
 # Define server logic for application
