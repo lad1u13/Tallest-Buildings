@@ -3,6 +3,9 @@
 # Ignore all csv files
 *.csv
 
+# Ignore data folder that contains csv files (in the buildings directory)
+data/
+
 .DS_Store
 .Rhistory
 
