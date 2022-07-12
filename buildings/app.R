@@ -56,8 +56,8 @@ ui <- fluidPage(title = "Worlds Tallest Buildings",
                               mainPanel(
                                 # Use two separate tabs in first page to display the map and distribution of heights separately
                                 tabsetPanel(type = 'tabs',
-                                            tabPanel('Map', plotlyOutput("map", width = "1000px", height = "600px")),
-                                            tabPanel('Height Chart', plotlyOutput('heightplot', width = "1000px", height = "600px"))),
+                                            tabPanel('Map', plotlyOutput("map", width = "900px", height = "550px")),
+                                            tabPanel('Height Chart', plotlyOutput('heightplot', width = "900px", height = "550px"))),
                                 htmlOutput("text")
                               )
                             )                                  
@@ -151,6 +151,9 @@ server <- function(input, output, session){
      layout(xaxis = list(title = 'Building name'),
             yaxis = list(title = 'Height (m)'))
  })
+ 
+ # Output text
+ output$text <- renderUI({HTML('<br> Rank displayed in the density legend of map corresponds to the rank of buildings in terms of height (where 1 is the tallest). This is recalculated based on filters selected on the left hand side. Note this visualisation is interactive and the tooltip displays upon hovering over markers. Some cities have multiple tallest buildings, which may require zooming in to see - the tooltip is useful in this case. <br> <br> <b> See other tabs at the top for country and population information. <b>')})
  
  
  # Output for visualisation in second tab (another plotly map but this time at the country level)
