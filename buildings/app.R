@@ -67,6 +67,7 @@ ui <- fluidPage(title = "Worlds Tallest Buildings",
                          sidebarLayout(
                            sidebarPanel(
                              titlePanel("Countries with the top 100 tallest buildings"), # Second tab title
+                             helpText('Select a variable to be displayed as density in the map:'), # Add helper text
                              pickerInput('variable', # Filter option for country level variable (without option for all)
                                          label = 'Variable',
                                          choices = c('Number of top 100 tallest buildings', names(countries)[!names(countries) %in% c('Country', 'Region')]),
