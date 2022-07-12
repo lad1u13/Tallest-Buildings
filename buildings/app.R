@@ -76,7 +76,7 @@ ui <- fluidPage(title = "Worlds Tallest Buildings",
                                          selected = 'Number of top 100 tallest buildings')
                            )
                            ,
-                           mainPanel(plotlyOutput("map2", width = "1000px", height = "700px")) # Include main visualisation for second tab
+                           mainPanel(plotlyOutput("map2", width = "900px", height = "550px")) # Include main visualisation for second tab
                          )
                 ),
                 # Third tab in application
