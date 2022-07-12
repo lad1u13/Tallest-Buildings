@@ -77,7 +77,31 @@ ui <- fluidPage(title = "Worlds Tallest Buildings",
                            ,
                            mainPanel(plotlyOutput("map2", width = "1000px", height = "700px")) # Include main visualisation for second tab
                          )
+                ),
+                # Third tab in application
+                tabPanel("City Population", icon = icon('chart-line'),
+                         sidebarLayout(
+                           sidebarPanel(
+                             titlePanel("Population (with forecast) of cities with top 100 tallest buildings"), # Title for third tab
+                             helpText('Choose a country and then a city (multiple cities are allowed) to visualise population time-series (where data is available):'),
+                             pickerInput('countries', 
+                                         label = 'Country',
+                                         choices = unique(full_data$Country),
+                                         options = list(`actions-box` = TRUE),
+                                         multiple = FALSE,
+                                         selected = 'USA'),
+                             
+                             pickerInput('cities',
+                                         label = 'City',
+                                         choices = unique(full_data$City),
+                                         options = list(`actions-box` = TRUE),
+                                         multiple = TRUE,
+                                         selected = 'New York')
+                           ),
+                           mainPanel(plotlyOutput("pop_chart", width = "1000px", height = "700px"))
+                         )  
                 )
+                
                 
   )
 )
@@ -144,7 +168,37 @@ server <- function(input, output, session){
      layout(mapbox = list(style = 'carto-positron'))
  })
  
+ # Choices for conditional filter in third tab
+ choices <- reactive(full_data %>%
+                       filter(Country == input$countries) %>%
+                       pull(City) %>%
+                       unique())
  
+ # Update selection of cities based on chosen country
+ observeEvent(choices(), {
+   choices <- choices()
+   updatePickerInput(session = session, inputId = 'cities', choices = choices, selected = choices)
+ })
+ 
+ # Output 'pop_chart' is visualisation for third tab - displaying population per city based on conditional filters
+ # Pivot the country data (but only for countries that have tallest buildings) and use ggplot to visualise - later convert to plotly using ggplotly
+ output$pop_chart <- renderPlotly({
+   p <- full_data %>%
+     dplyr::select(one_of('City', 'Country', names(full_data)[names(full_data) %in% c(1931:2035)])) %>%
+     pivot_longer(cols = names(full_data)[names(full_data) %in% c(1931:2035)], names_to = 'Year', values_to = 'Population') %>%
+     filter(Country %in% input$countries) %>%
+     filter(City %in% input$cities) %>%
+     ggplot(aes(x = Year, y = Population, color = City)) + # Colour by city
+     geom_point(aes(color = City)) +
+     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) # Rotate x-axis labels to improve appearance
+   
+   breaks <- round(seq(1950, 2035, length.out = 20),0) # Set breaks to avoid overlay of x-axis labels
+   
+   p <- p + scale_x_discrete(breaks = breaks, labels = as.character(breaks)) +
+     geom_vline(xintercept = '2022')
+   
+   ggplotly(p) # Convert ggplot object to plotly to make interactive and display
+ })
  
 } 
 
